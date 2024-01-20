@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { createBrowserRouter, Outlet } from "react-router-dom";
+import Error from "./Components/Error";
+import Authentication from "./Pages/Authentication";
+import AdminDashboard from "./Pages/AdminDashboard";
+import ResetPassword from "./Pages/ResetPassword";
+import { ToastContainer } from "react-toastify";
+import FontLoader from "./utils/FontLoader";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <ToastContainer />
+      <FontLoader />
+      <Outlet />
+      <ToastContainer position="top-right" />
+    </>
   );
 }
-
 export default App;
+
+export const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+    errorElement: <Error />,
+    children: [
+      {
+        path: "/",
+        element: <Authentication />,
+      },
+      {
+        path: "/dashboard",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "/reset-password",
+        element: <ResetPassword />,
+      },
+    ],
+  },
+]);
