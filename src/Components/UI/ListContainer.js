@@ -14,9 +14,9 @@ const ListContainer = ({
   onDelete,
 }) => {
   return (
-    <div className=" shadow-lg flex flex-col w-10/12  px-4 ml-1 mt-6 ">
-      <div className="flex justify-between items-center px-3 py-6">
-        <h2 className="flex items-center  text-xl">
+    <div className="shadow-lg flex flex-col w-full sm:w-10/12 px-4 ml-1 mt-6 sm:ml-0">
+      <div className="flex flex-col sm:flex-row justify-between items-center px-3 py-6">
+        <h2 className="flex items-center text-xl mb-4 sm:mb-0">
           {title === "Category" ? (
             <BiCategory className="mr-2" />
           ) : (
@@ -24,8 +24,8 @@ const ListContainer = ({
           )}
           {title}
         </h2>
-        <div className="flex items-center space-x-3">
-          <form>
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          <form className="w-full sm:w-auto">
             <label className="sr-only">Search</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -34,7 +34,7 @@ const ListContainer = ({
               <input
                 type="search"
                 id="default-search"
-                className="block w-full py-1 pl-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
+                className="block w-full sm:w-48 py-1 pl-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
                 placeholder="Search..."
                 required
               />

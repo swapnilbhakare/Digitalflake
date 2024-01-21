@@ -13,7 +13,7 @@ const DashboardSideNav = ({ selectedComponent, setSelectedComponent }) => {
       className=" h-screen bg-slate-200 w-1/5 shadow-lg"
       style={{ height: "calc(100vh - 56px)" }}
     >
-      <ul className="mt-10 flex flex-col px-5 text-3xl ">
+      <ul className="mt-10 flex flex-col px-2 text-xl ">
         <li
           className={`flex items-center justify-between cursor-pointer py-2 my-1 ${
             isHomeSelected && " bg-[#FFF8B7] "
