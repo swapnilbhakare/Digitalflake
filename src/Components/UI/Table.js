@@ -9,7 +9,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
 
   const openDeleteModal = (id) => {
     setDeleteItemId(id);
-    setDeleteModalOpen(true);
+    setDeleteModalOpen((prevState) => !prevState);
   };
 
   const closeDeleteModal = () => {
@@ -18,6 +18,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
   };
 
   const handleDelete = () => {
+    console.log("Deleting item with ID:", deleteItemId);
     if (onDelete && deleteItemId) {
       onDelete(deleteItemId);
       closeDeleteModal();
@@ -70,7 +71,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
                   )}
                 </td>
               ))}
-              <td className="px-4 py-4 " key="action ">
+              <td className="px-4 py-4  " key="action ">
                 {onEdit && (
                   <button
                     className="text-gray-700 mr-2"
@@ -88,7 +89,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
                           : ""
                       }`}
                       onClick={() =>
-                        item.status !== "active" && openDeleteModal(item.id)
+                        item.status === "active" && openDeleteModal(item.id)
                       }
                       disabled={item.status === "inactive"}
                     >

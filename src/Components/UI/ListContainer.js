@@ -9,7 +9,6 @@ const ListContainer = ({
   data,
   columns,
   tableHead,
-  onAddNew,
   onClick,
   onEdit,
   onDelete,
