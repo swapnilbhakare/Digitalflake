@@ -4,14 +4,32 @@ import Modal from "./UI/Modal";
 import { RiAlertFill } from "react-icons/ri";
 import { HeaderLogo } from "../utils/headerLogo";
 import { logout } from "../Store/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { API_URL } from "../utils/constants";
 
 const Logout = ({ handleLogoutModalClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/users/logout`);
+      if (response.status === 200) {
+        dispatch(logout());
+        toast.success("User has successfully logged out");
+        handleLogoutModalClose();
+
+        navigate("/");
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (error) {
+      toast.success("User has successfully logged out", error);
+    }
+
     dispatch(logout());
     handleLogoutModalClose();
     navigate("/");
@@ -49,6 +67,8 @@ const Logout = ({ handleLogoutModalClose }) => {
 };
 
 const Header = () => {
+  const user = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
 
@@ -73,10 +93,20 @@ const Header = () => {
     <div className="flex items-center justify-between px-10 w-full h-14 bg-purple-900">
       <div>{HeaderLogo}</div>
       <div className="flex items-center">
-        <CgProfile
-          className="text-white text-3xl cursor-pointer mr-4"
-          onClick={() => handleProfileClick()}
-        />
+        {isAuthenticated ? (
+          <img
+            className="w-8 h-8 rounded-full object-contain bg-white"
+            src={user.user.data.user.profileImage}
+            alt={user.user.data.user.fullName}
+            onClick={() => handleProfileClick()}
+          />
+        ) : (
+          <CgProfile
+            className="text-white text-3xl cursor-pointer mr-4"
+            onClick={() => handleProfileClick()}
+          />
+        )}
+
         {isModalOpen && (
           <Modal
             onClose={handleCloseModal}

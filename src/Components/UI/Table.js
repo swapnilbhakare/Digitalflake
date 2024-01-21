@@ -56,13 +56,15 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
                     <img
                       src={item[column.key]}
                       alt="Product_Image"
-                      className="h-14 w-14 object-contain "
+                      className="h-14 w-14  object-contain "
                     />
                   ) : column.key === "status" ? (
                     <span
-                      className={`text-${
-                        item.status === "active" ? "green" : "red"
-                      }-500`}
+                      className={`${
+                        item.status === "active"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
                     >
                       {item.status === "active" ? "Active" : "Inactive"}
                     </span>

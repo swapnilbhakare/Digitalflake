@@ -1,10 +1,12 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import LOGO from "../Images/logo.png";
 import backgroundImage from "../Images/bg.png";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { login } from "../Store/authSlice";
+import { API_URL } from "../utils/constants";
 
 const Authentication = () => {
   const emailInputRef = useRef();
@@ -18,21 +20,28 @@ const Authentication = () => {
     const enteredPassword = passwordInputRef.current.value;
 
     try {
-      const user = {
-        email: "digital@gmail.com",
-        password: "12345",
-      };
+      if (!enteredEmail || !enteredPassword) {
+        toast.error("All fields are required");
 
-      if (enteredEmail === user.email && enteredPassword === user.password) {
-        dispatch(login({ idToken: "tempIdToken", userId: user.email }));
+        return;
+      }
 
+      const response = await axios.post(`${API_URL}/users/login`, {
+        email: enteredEmail,
+        password: enteredPassword,
+      });
+
+      const user = response.data;
+
+      if (response.status === 200) {
+        dispatch(login({ user }));
         toast.success("User has successfully signed in");
         navigate("/dashboard");
       } else {
         toast.error("Invalid email or password");
       }
     } catch (error) {
-      toast.error("error", error);
+      toast.error("Please check your Email id password");
     }
   };
 
