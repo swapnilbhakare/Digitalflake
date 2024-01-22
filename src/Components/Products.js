@@ -1,35 +1,66 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect, useMemo } from "react";
+import { API_URL } from "../utils/constants";
 import { toast } from "react-toastify";
 import AddItem from "./AddItem";
 import ListContainer from "./UI/ListContainer";
-import { addProduct, editProduct, deleteProduct } from "../Store/ProductSlice";
+import axios from "axios";
+import {
+  setProducts,
+  addProduct,
+  editProduct,
+  deleteProduct,
+} from "../Store/ProductSlice";
 import { useDispatch, useSelector } from "react-redux";
-import short from "short-uuid";
+
 const Products = () => {
   const [formData, setFormData] = useState({
-    id: "",
+    _id: "",
     name: "",
     packSize: "",
     category: "",
     mrp: "",
-    image: "",
+    productImage: "",
     status: "",
   });
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.products);
-  const categories = useSelector((state) => state.categories);
-  const handleAddNewClick = () => {
-    setShowAddProduct(true);
-    setEditProductId(null);
-  };
+  const products = useSelector((state) => state.products.products);
+  const categories = useSelector((state) => state.categories.categories);
 
-  const handleSaveProduct = () => {
-    const newId = short.generate();
+  const authToken = useSelector(
+    (state) => state.auth.user.user.data.accessToken
+  );
+
+  const config = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    }),
+    [authToken]
+  );
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          `${API_URL}/products/fetch-products`,
+          config
+        );
+
+        dispatch(setProducts(response?.data?.data));
+      } catch (error) {
+        console.error("Error fetching products:", error.message);
+        toast.error("Error fetching products");
+      }
+    };
+    fetchProducts();
+  }, [dispatch, config]);
+
+  const handleSaveProduct = async () => {
     if (
-      (!editProductId && !formData.image) ||
+      (!editProductId && !formData.productImage) ||
       !formData.name ||
       !formData.packSize ||
       !formData.category ||
@@ -39,94 +70,109 @@ const Products = () => {
       toast.error("Please fill in all fields");
       return;
     }
-    if (formData.image instanceof File) {
-      const imageUrl = URL.createObjectURL(formData.image);
 
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        id: newId,
-      }));
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("_id", formData._id);
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("packSize", formData.packSize);
+
+      formDataToSend.append("mrp", formData.mrp);
+      formDataToSend.append("status", formData.status);
+      formDataToSend.append("category", JSON.stringify(formData.category));
+
+      if (formData.productImage instanceof File) {
+        formDataToSend.append("productImage", formData.productImage);
+      }
 
       if (editProductId) {
-        dispatch(
-          editProduct({
-            id: editProductId,
-            updatedData: {
-              name: formData.name,
-              packSize: formData.packSize,
-              category: formData.category,
-              mrp: formData.mrp,
-              image: imageUrl,
-              status: formData.status,
-            },
-          })
+        await axios.put(
+          `${API_URL}/products/update-product/${editProductId}`,
+          formDataToSend,
+          config
         );
+
+        dispatch(editProduct({ _id: editProductId, updatedData: formData }));
         toast.success("Product updated successfully");
+        setEditProductId(null);
       } else {
-        dispatch(
-          addProduct({
-            id: newId,
-            name: formData.name,
-            packSize: formData.packSize,
-            category: formData.category,
-            mrp: formData.mrp,
-            image: imageUrl,
-            status: formData.status,
-          })
+        const response = await axios.post(
+          `${API_URL}/products/add-product`,
+          formDataToSend,
+          config
         );
+
+        dispatch(addProduct(response.data.data));
         toast.success("Product added successfully");
       }
+
       setShowAddProduct(false);
       setFormData({
-        id: "",
         name: "",
         packSize: "",
         category: "",
         mrp: "",
-        image: "",
+        productImage: "",
         status: "",
       });
-    } else {
-      console.error("Invalid image file");
+    } catch (error) {
+      console.error("Error saving/updating product:", error.message);
+      toast.error("Error saving/updating product");
     }
   };
 
-  const handleEdit = (id) => {
-    const productToEdit = products.find((product) => product.id === id);
+  const handleAddNewClick = () => {
+    setShowAddProduct(true);
+    setEditProductId(null);
+  };
+
+  const handleEdit = (_id) => {
+    const productToEdit = products.find((product) => product._id === _id);
 
     if (productToEdit) {
       setShowAddProduct(true);
-      setEditProductId(id);
+      setEditProductId(_id);
       setFormData(productToEdit);
     }
   };
 
-  const handleDelete = (id) => {
-    dispatch(deleteProduct(id));
-    toast.success("Product deleted successfully");
+  const handleDelete = async (_id) => {
+    try {
+      await axios.delete(`${API_URL}/products/delete-product/${_id}`, config);
+
+      dispatch(deleteProduct(_id));
+    } catch (error) {
+      console.error("Error deleting category:", error.message);
+      toast.error("Error deleting category");
+    }
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData({
-      ...formData,
+  const handleInputChange = (field, eventOrValue) => {
+    const value =
+      eventOrValue.target !== undefined
+        ? eventOrValue.target.value
+        : eventOrValue;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
       [field]: value,
-    });
+    }));
   };
+
   const handleCancel = () => {
     setShowAddProduct(false);
     setFormData({
-      id: "",
       name: "",
       packSize: "",
       category: "",
       mrp: "",
-      image: "",
+      productImage: "",
       status: "",
     });
   };
 
   const columns = [
-    { key: "id", title: "ID" },
+    { key: "_id", title: "ID" },
     { key: "name", title: "Name" },
     { key: "packSize", title: "Pack Size" },
     {
@@ -136,7 +182,7 @@ const Products = () => {
       options: ["milk", "bread", "others"],
     },
     { key: "mrp", title: "MRP", type: "number" },
-    { key: "image", title: "Image", type: "file" },
+    { key: "productImage", title: "Image", type: "file" },
     {
       key: "status",
       title: "Status",
@@ -146,17 +192,19 @@ const Products = () => {
   ];
 
   const tableHead = [
-    { key: "id", title: "ID" },
+    { key: "_id", title: "ID" },
     { key: "name", title: "Name" },
     { key: "packSize", title: "Pack Size" },
     {
       key: "category",
       title: "Category",
       type: "select",
-      options: ["milk", "bread", "others"],
+      options: Array.isArray(categories)
+        ? categories.map((category) => category.name)
+        : [],
     },
     { key: "mrp", title: "MRP", type: "number" },
-    { key: "image", title: "Image", type: "file" },
+    { key: "productImage", title: "Image", type: "file" },
     {
       key: "status",
       title: "Status",

@@ -7,8 +7,8 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
 
-  const openDeleteModal = (id) => {
-    setDeleteItemId(id);
+  const openDeleteModal = (_id) => {
+    setDeleteItemId(_id);
     setDeleteModalOpen((prevState) => !prevState);
   };
 
@@ -47,15 +47,21 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
         <tbody>
           {data.map((item) => (
             <tr
-              key={item.id}
+              key={item._id}
               className="bg-[whitesmoke] border border-spacing-y-96 my-4 text-center"
             >
               {columns.map((column) => (
                 <td key={column.key} className="px-4 py-4">
-                  {column.type === "file" ? (
+                  {column.key === "category" ? (
+                    <span>
+                      {item.category && item.category.name
+                        ? item.category.name
+                        : item.name}
+                    </span>
+                  ) : column.type === "file" ? (
                     <img
                       src={item[column.key]}
-                      alt="Product_Image"
+                      alt={item.key}
                       className="h-14 w-14  object-contain "
                     />
                   ) : column.key === "status" ? (
@@ -77,7 +83,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
                 {onEdit && (
                   <button
                     className="text-gray-700 mr-2"
-                    onClick={() => onEdit(item.id)}
+                    onClick={() => onEdit(item._id)}
                   >
                     <FaEdit className="inline-block mr-1" />
                   </button>
@@ -91,7 +97,7 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
                           : ""
                       }`}
                       onClick={() =>
-                        item.status === "active" && openDeleteModal(item.id)
+                        item.status === "active" && openDeleteModal(item._id)
                       }
                       disabled={item.status === "inactive"}
                     >

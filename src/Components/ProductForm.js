@@ -8,6 +8,10 @@ const ProductForm = ({ formData, handleInputChange, categories }) => {
   const categoryInputRef = useRef();
   const imageInputRef = useRef();
   const statusInputRef = useRef();
+  const categoryOptions = categories.map((category) => ({
+    _id: category._id,
+    name: category.name,
+  }));
 
   return (
     <div className="flex items-center justify-around flex-wrap w-full">
@@ -18,7 +22,7 @@ const ProductForm = ({ formData, handleInputChange, categories }) => {
         ref={categoryInputRef}
         value={formData.category}
         onChange={(event) => handleInputChange("category", event)}
-        options={categories}
+        options={categoryOptions}
       />
 
       <InputField
@@ -49,11 +53,11 @@ const ProductForm = ({ formData, handleInputChange, categories }) => {
       />
 
       <InputField
-        id="image"
+        id="productImage"
         label="Product Image"
         type="file"
         ref={imageInputRef}
-        onChange={(event) => handleInputChange("image", event)}
+        onChange={(event) => handleInputChange("productImage", event)}
       />
 
       <InputField
