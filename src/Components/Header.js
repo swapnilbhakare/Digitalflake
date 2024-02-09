@@ -14,6 +14,7 @@ const Logout = ({ handleLogoutModalClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // confirm delete
   const handleConfirm = async () => {
     try {
       const response = await axios.post(`${API_URL}/users/logout`);
@@ -34,6 +35,7 @@ const Logout = ({ handleLogoutModalClose }) => {
     handleLogoutModalClose();
     navigate("/");
   };
+  // canceling logout
   const onCancel = () => {
     handleLogoutModalClose();
   };
@@ -67,8 +69,11 @@ const Logout = ({ handleLogoutModalClose }) => {
 };
 
 const Header = () => {
-  const user = useSelector((state) => state.auth.user);
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const auth = useSelector((state) => state.auth);
+
+  const isAuthenticated = auth.isAuthenticated;
+  const user = auth.user;
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
 
@@ -96,8 +101,8 @@ const Header = () => {
         {isAuthenticated ? (
           <img
             className="w-8 h-8 rounded-full object-contain bg-white"
-            src={user.user.data.user.profileImage}
-            alt={user.user.data.user.fullName}
+            src={user?.profileImage}
+            alt={user?.fullName}
             onClick={() => handleProfileClick()}
           />
         ) : (

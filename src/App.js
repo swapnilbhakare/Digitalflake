@@ -3,12 +3,27 @@ import AdminDashboard from "./Pages/AdminDashboard";
 import ResetPassword from "./Pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import FontLoader from "./utils/FontLoader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { login } from "./Store/authSlice";
 
 function App() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
+
+  const auth = useSelector((state) => state.auth);
+
+  const isAuthenticated = auth.isAuthenticated;
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (accessToken && refreshToken) {
+      // Dispatch login action with stored tokens
+      dispatch(login({ accessToken, refreshToken, user }));
+    }
+  }, [dispatch]);
 
   return (
     <>

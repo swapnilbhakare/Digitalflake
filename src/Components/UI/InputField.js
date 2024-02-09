@@ -1,17 +1,23 @@
 import React from "react";
 import { MdOutlineFileUpload } from "react-icons/md";
 
+// InputField component using React.forwardRef for handling input fields
+
 const InputField = React.forwardRef(
+  // Destructuring props
+
   ({ id, label, type, value, onChange, required, options }, refProp) => {
+    // Function to handle input changes
     const handleChange = (event) => {
       let inputValue;
+      // Checking if input type is file
       if (event.target.type === "file") {
-        inputValue = event.target.files[0];
+        inputValue = event.target.files[0]; // Geting file input value
       } else {
-        inputValue = event.target.value;
+        inputValue = event.target.value; // Getting regular input value
       }
 
-      onChange(inputValue);
+      onChange(inputValue); // Calling parent onChange function with input value
     };
 
     return (

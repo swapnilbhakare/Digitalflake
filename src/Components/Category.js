@@ -24,9 +24,12 @@ const Category = () => {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.categories);
 
-  const authToken = useSelector(
-    (state) => state.auth.user.user.data.accessToken
-  );
+  // Geting authentication token from Redux store
+
+  const authToken = useSelector((state) => state.auth.accessToken);
+
+  // Memorizing configuration object for API requests
+
   const config = useMemo(
     () => ({
       headers: {
@@ -36,11 +39,7 @@ const Category = () => {
     [authToken]
   );
 
-  const handleAddNewClick = () => {
-    setShowAddCategory(true);
-    setEditCategoryId(null);
-  };
-
+  // Fetching categories from the server when the component mounts
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -58,12 +57,17 @@ const Category = () => {
     fetchCategories();
   }, [dispatch, config]);
 
+  // Saveing or updating a category
+
   const handleSaveCategory = async () => {
+    // Validating form data
+
     if (!formData.name || !formData.description || !formData.status) {
       toast.error("Please fill in all fields");
       return;
     }
     try {
+      // Sending HTTP request to save or update the category
       if (editCategoryId) {
         await axios.put(
           `${API_URL}/categories/update-category/${editCategoryId}`,
@@ -89,7 +93,7 @@ const Category = () => {
       console.error("Error saving category:", error.message);
       toast.error("Error saving category");
     }
-
+    // Reseting form data and hide the add category form
     setShowAddCategory(false);
     setFormData({
       name: "",
@@ -98,6 +102,12 @@ const Category = () => {
     });
   };
 
+  // Showing add category form
+  const handleAddNewClick = () => {
+    setShowAddCategory(true);
+    setEditCategoryId(null);
+  };
+  // Canceling adding/editing a category and reset the form
   const handleCancel = () => {
     setShowAddCategory(false);
     setFormData({
@@ -107,12 +117,11 @@ const Category = () => {
     });
     setEditCategoryId(null);
   };
-
+  // Edit a category
   const handleEdit = (_id) => {
     const categoryToEdit = categories?.categories.find(
       (category) => category._id === _id
     );
-    console.log("handle edit", categoryToEdit);
 
     if (categoryToEdit) {
       setShowAddCategory(true);
@@ -120,7 +129,7 @@ const Category = () => {
       setFormData(categoryToEdit);
     }
   };
-
+  // Delete a category
   const handleDelete = async (_id) => {
     try {
       await axios.delete(
@@ -134,6 +143,7 @@ const Category = () => {
       toast.error("Error deleting category");
     }
   };
+  // Handling input change in the add/edit category form
 
   const handleInputChange = (field, value) => {
     setFormData((prevFormData) => ({
@@ -142,6 +152,8 @@ const Category = () => {
     }));
   };
 
+  // Defineed columns for the list container
+
   const columns = [
     { key: "_id", title: "ID" },
     { key: "name", title: "Name" },
@@ -149,6 +161,7 @@ const Category = () => {
     { key: "status", title: "Status" },
     { key: "action", title: "" },
   ];
+  // Defineed table head for the list container
 
   const tableHead = [
     { key: "_id", title: "ID" },

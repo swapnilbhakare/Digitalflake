@@ -27,11 +27,9 @@ const Products = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.products);
   const categories = useSelector((state) => state.categories.categories);
-
-  const authToken = useSelector(
-    (state) => state.auth.user.user.data.accessToken
-  );
-
+  // Getting authentication token from Redux store
+  const authToken = useSelector((state) => state.auth.accessToken);
+  // Memoizing configuration object for API requests
   const config = useMemo(
     () => ({
       headers: {
@@ -40,7 +38,7 @@ const Products = () => {
     }),
     [authToken]
   );
-
+  // Fetching products from the server when the component mounts
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -58,7 +56,11 @@ const Products = () => {
     fetchProducts();
   }, [dispatch, config]);
 
+  // Saving  or updating  a product
+
   const handleSaveProduct = async () => {
+    // Validating  form data
+
     if (
       (!editProductId && !formData.productImage) ||
       !formData.name ||
@@ -72,6 +74,7 @@ const Products = () => {
     }
 
     try {
+      // created form data to send to the server
       const formDataToSend = new FormData();
       formDataToSend.append("_id", formData._id);
       formDataToSend.append("name", formData.name);
@@ -80,11 +83,12 @@ const Products = () => {
       formDataToSend.append("mrp", formData.mrp);
       formDataToSend.append("status", formData.status);
       formDataToSend.append("category", JSON.stringify(formData.category));
+      // Appending product image if available
 
       if (formData.productImage instanceof File) {
         formDataToSend.append("productImage", formData.productImage);
       }
-
+      // Sending HTTP request to save or update the product
       if (editProductId) {
         await axios.put(
           `${API_URL}/products/update-product/${editProductId}`,
@@ -105,6 +109,7 @@ const Products = () => {
         dispatch(addProduct(response.data.data));
         toast.success("Product added successfully");
       }
+      // Reseting form data and hide the add product form
 
       setShowAddProduct(false);
       setFormData({
@@ -121,11 +126,13 @@ const Products = () => {
     }
   };
 
+  // Showing the add product form when click on add button
   const handleAddNewClick = () => {
     setShowAddProduct(true);
     setEditProductId(null);
   };
 
+  // Editing a product
   const handleEdit = (_id) => {
     const productToEdit = products.find((product) => product._id === _id);
 
@@ -136,6 +143,7 @@ const Products = () => {
     }
   };
 
+  // Deleting a product
   const handleDelete = async (_id) => {
     try {
       await axios.delete(`${API_URL}/products/delete-product/${_id}`, config);
@@ -147,6 +155,7 @@ const Products = () => {
     }
   };
 
+  // Handling  input change in the add/edit product form
   const handleInputChange = (field, eventOrValue) => {
     const value =
       eventOrValue.target !== undefined
@@ -159,6 +168,8 @@ const Products = () => {
     }));
   };
 
+  // Canceling  adding/editing a product and reset the form
+
   const handleCancel = () => {
     setShowAddProduct(false);
     setFormData({
@@ -170,6 +181,7 @@ const Products = () => {
       status: "",
     });
   };
+  // Defineed columns for the list container
 
   const columns = [
     { key: "_id", title: "ID" },
@@ -190,7 +202,7 @@ const Products = () => {
       options: ["Active", "Inactive"],
     },
   ];
-
+  // Defineed table head for the list container
   const tableHead = [
     { key: "_id", title: "ID" },
     { key: "name", title: "Name" },

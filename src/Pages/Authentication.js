@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import LOGO from "../Images/logo.png";
@@ -31,10 +31,19 @@ const Authentication = () => {
         password: enteredPassword,
       });
 
-      const user = response.data;
+      const data = response?.data?.data;
+      const user = data?.user;
+      const accessToken = data?.accessToken;
+      const refreshToken = data?.refreshToken;
 
-      if (response.status === 200) {
-        dispatch(login({ user }));
+      if (response?.status === 200) {
+        dispatch(
+          login({
+            user: user,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+          })
+        );
         toast.success("User has successfully signed in");
         navigate("/dashboard");
       } else {

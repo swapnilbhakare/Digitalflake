@@ -7,26 +7,30 @@ const Table = ({ data, columns, tableHead, onEdit, onDelete }) => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
 
+  // Function to open delete modal and set delete item id
   const openDeleteModal = (_id) => {
     setDeleteItemId(_id);
     setDeleteModalOpen((prevState) => !prevState);
   };
+  // Function to close delete modal and reset delete item id
 
   const closeDeleteModal = () => {
     setDeleteItemId(null);
     setDeleteModalOpen(false);
   };
+  // Function to handle delete action
 
   const handleDelete = () => {
     console.log("Deleting item with ID:", deleteItemId);
     if (onDelete && deleteItemId) {
-      onDelete(deleteItemId);
+      onDelete(deleteItemId); // Calling onDelete function with delete item id
       closeDeleteModal();
     }
   };
+  // Function to handle cancel action in delete modal
 
   const onCancel = () => {
-    closeDeleteModal();
+    closeDeleteModal(); // Closing delete modal
   };
 
   return (
